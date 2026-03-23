@@ -122,6 +122,22 @@ def regenerate_caption():
             "hashtags": ["memes","funny","viral","trending","relatable","lol","memesdaily","humor","comedy","reels"],
         })
 
+@app.route("/api/proxy-image")
+def proxy_image():
+    url = request.args.get("url")
+    if not url:
+        return jsonify({"error": "No URL"}), 400
+    try:
+        with httpx.Client(timeout=10.0) as client:
+            r = client.get(url)
+            from flask import Response
+            return Response(
+                r.content,
+                content_type=r.headers.get("content-type", "image/jpeg"),
+                headers={"Access-Control-Allow-Origin": "*"}
+            )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
